@@ -30,7 +30,7 @@ theorem bounded_by_max_log_arity
   (log_final_height : Usize)
   (max_log_arity : Usize)
   (result : Usize)
-  (h_gt : log_current_height.val > log_final_height.val)
+  -- (h_gt : log_current_height.val > log_final_height.val)
   (h_result : returns
     (fold_arity.compute_log_arity_for_round
       log_current_height next_input_log_height log_final_height max_log_arity)
@@ -198,7 +198,17 @@ example :
         (Usize.ofNat 10) none (Usize.ofNat 3) (Usize.ofNat 4))
       result
     ∧ result.val = 4 := by
-  sorry
+    exists (Usize.ofNat 4)
+    constructor
+    · unfold fold_arity.compute_log_arity_for_round returns
+      simp [Bind.bind, Std.bind]
+      unfold HSub.hSub
+      unfold instHSubUScalarResult
+      simp
+      unfold UScalar.sub
+      simp
+      native_decide
+    · norm_num
 
 -- next_input = 8: distance to next = 2, distance to final = 7 ⟹ result = 2
 example :
