@@ -30,7 +30,6 @@ theorem bounded_by_max_log_arity
   (log_final_height : Usize)
   (max_log_arity : Usize)
   (result : Usize)
-  -- (h_gt : log_current_height.val > log_final_height.val)
   (h_result : returns
     (fold_arity.compute_log_arity_for_round
       log_current_height next_input_log_height log_final_height max_log_arity)
