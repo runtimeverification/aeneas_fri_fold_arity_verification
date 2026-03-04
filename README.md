@@ -36,7 +36,7 @@ fold_arity_lean/
 | 4 | `takes_minimum_of_constraints` | Stated | result &le; min(current&minus;next, max_arity) |
 | 5 | `none_equals_some_at_target` | Stated | None &equiv; Some(final_height) boundary |
 | 6 | `monotonic_in_max_arity` | Stated | monotone in max_log_arity |
-| &mdash; | 3 concrete examples | Stated | specific input/output checks |
+| &mdash; | 3 concrete examples | Proved | specific input/output checks |
 
 ## Hax vs Aeneas Comparison
 
