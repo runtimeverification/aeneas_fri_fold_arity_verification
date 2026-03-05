@@ -188,7 +188,19 @@ example :
         (Usize.ofNat 10) none (Usize.ofNat 3) (Usize.ofNat 100))
       result
     ∧ result.val = 7 := by
-  sorry
+    exists (Usize.ofNat 7)
+    constructor
+    · unfold fold_arity.compute_log_arity_for_round returns
+      simp [Bind.bind, Std.bind]
+      unfold HSub.hSub instHSubUScalarResult
+      simp
+      unfold UScalar.sub
+      simp
+      split
+      · simp [Std.Usize.ofNat, UScalar.ofNat]
+        native_decide -- this works
+      · simp_all; rename_i h; exact absurd h (by native_decide)
+    · norm_num -- this works
 
 -- 10 - 3 = 7; max_arity 4 caps ⟹ result = 4
 example :
@@ -198,7 +210,17 @@ example :
         (Usize.ofNat 10) none (Usize.ofNat 3) (Usize.ofNat 4))
       result
     ∧ result.val = 4 := by
-  sorry
+    exists (Usize.ofNat 4)
+    constructor
+    · unfold fold_arity.compute_log_arity_for_round returns
+      simp [Bind.bind, Std.bind]
+      unfold HSub.hSub
+      unfold instHSubUScalarResult
+      simp
+      unfold UScalar.sub
+      simp
+      native_decide
+    · norm_num
 
 -- next_input = 8: distance to next = 2, distance to final = 7 ⟹ result = 2
 example :
@@ -208,6 +230,19 @@ example :
         (Usize.ofNat 10) (some (Usize.ofNat 8)) (Usize.ofNat 3) (Usize.ofNat 100))
       result
     ∧ result.val = 2 := by
-  sorry
+    exists (Usize.ofNat 2)
+    unfold fold_arity.compute_log_arity_for_round returns
+    simp [Bind.bind, Std.bind]
+    unfold HSub.hSub
+    unfold instHSubUScalarResult
+    simp
+    unfold UScalar.sub
+    simp
+    split
+    · split
+      · simp
+        native_decide
+      · simp_all; rename_i h; exact absurd h (by native_decide)
+    · simp_all; rename_i h; exact absurd h (by native_decide)
 
 end FoldArityVerif.BasicProofs
