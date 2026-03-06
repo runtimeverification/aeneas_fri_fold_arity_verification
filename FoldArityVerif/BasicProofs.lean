@@ -39,8 +39,7 @@ theorem bounded_by_max_log_arity
   -- Step 1: Name and case-split on first subtraction
   generalize h_sub1 : (log_current_height - log_final_height : Result Usize) = sub1 at h_result
   cases sub1 with
-  | fail e => simp at h_result
-  | div => simp at h_result
+  | fail e | div  => simp at h_result
   | ok mft =>
     simp only [bind_tc_ok] at h_result
     -- Step 2: Case split on next_input_log_height
@@ -56,8 +55,7 @@ theorem bounded_by_max_log_arity
       simp only [] at h_result
       generalize h_sub2 : (log_current_height - nlh : Result Usize) = sub2 at h_result
       cases sub2 with
-      | fail e => simp at h_result
-      | div => simp at h_result
+      | fail e | div => simp at h_result
       | ok mfn =>
         simp only [bind_tc_ok] at h_result
         by_cases h_inner : mfn < mft
@@ -88,7 +86,20 @@ theorem bounded_by_target_distance
       log_current_height none log_final_height max_log_arity)
     result)
   : result.val ≤ log_current_height.val - log_final_height.val := by
-  sorry
+  unfold fold_arity.compute_log_arity_for_round at h_result
+  simp [Bind.bind, Std.bind] at h_result
+  have h_le : log_final_height.val ≤ log_current_height.val := by omega
+  match h_sub : log_current_height - log_final_height with
+  | .ok diff =>
+    simp [h_sub, returns] at h_result
+    split at h_result <;> {
+      simp at h_result
+      subst h_result
+      have hsub := Std.Usize.sub_spec h_le
+      simp [h_sub] at hsub
+      omega
+    }
+  | .fail e | .div => simp [h_sub, returns] at h_result
 
 -- Property 3: When next_input is Some, result ≤ distance from current to next
 -- Requires both debug_asserts:
@@ -110,7 +121,25 @@ theorem respects_next_input
       max_log_arity)
     result)
   : result.val ≤ log_current_height.val - next_log_height.val := by
-  sorry
+  unfold fold_arity.compute_log_arity_for_round at h_result
+  simp [Bind.bind, Std.bind] at h_result
+  have h_le_final : log_final_height.val ≤ log_current_height.val := by omega
+  have h_le_next : next_log_height.val ≤ log_current_height.val := by omega
+  match h_sub1 : log_current_height - log_final_height with
+  | .ok diff1 =>
+    simp [h_sub1] at h_result
+    match h_sub2 : log_current_height - next_log_height with
+    | .ok diff2 =>
+      simp [h_sub2, returns] at h_result
+      have hsub2 := Std.Usize.sub_spec h_le_next
+      simp [h_sub2] at hsub2
+      split at h_result <;> split at h_result <;> {
+        simp at h_result
+        subst h_result
+        omega
+      }
+    | .fail e | .div => simp [h_sub2, returns] at h_result
+  | .fail e | .div => simp [h_sub1, returns] at h_result
 
 -- Property 4: Result = min(distance constraints, max_log_arity)
 -- Requires both debug_asserts
@@ -131,7 +160,26 @@ theorem takes_minimum_of_constraints
     result)
   : result.val ≤
       min (log_current_height.val - next_log_height.val) max_log_arity.val := by
-  sorry
+  unfold fold_arity.compute_log_arity_for_round at h_result
+  simp [Bind.bind, Std.bind] at h_result
+  have h_le_final : log_final_height.val ≤ log_current_height.val := by omega
+  have h_le_next : next_log_height.val ≤ log_current_height.val := by omega
+  match h_sub1 : log_current_height - log_final_height with
+  | .ok diff1 =>
+    simp [h_sub1] at h_result
+    match h_sub2 : log_current_height - next_log_height with
+    | .ok diff2 =>
+      simp [h_sub2, returns] at h_result
+      have hsub2 := Std.Usize.sub_spec h_le_next
+      simp [h_sub2] at hsub2
+      split at h_result <;> split at h_result <;> {
+        simp at h_result
+        subst h_result
+        obtain ⟨hsub2_eq, _⟩ := hsub2
+        omega
+      }
+    | .fail e | .div => simp [h_sub2, returns] at h_result
+  | .fail e | .div => simp [h_sub1, returns] at h_result
 
 -- Property 5: None ≡ Some(log_final_height) — boundary case
 -- When next-input IS the final height, the two cases coincide
@@ -154,7 +202,24 @@ theorem none_equals_some_at_target
       max_log_arity)
     result_some)
   : result_none = result_some := by
-  sorry
+  unfold fold_arity.compute_log_arity_for_round at h_none h_some
+  simp [Bind.bind, Std.bind] at h_none h_some
+  have h_le : log_final_height.val ≤ log_current_height.val := by omega
+  match h_sub : log_current_height - log_final_height with
+  | .ok diff =>
+    simp [h_sub, returns] at h_none h_some
+    -- In h_some, the second subtraction is also log_current_height - log_final_height
+    -- which is the same h_sub, so both reduce to the same if/else
+    split at h_some <;> {
+      rename_i h
+      simp [h] at h_none
+      simp at h_none h_some
+      subst h_none
+      subst h_some
+      rfl
+    }
+  | .fail e | .div => simp [h_sub, returns] at h_none
+
 
 -- Property 6: Monotone in max_log_arity
 -- Larger cap ⟹ result can only be at least as large
@@ -175,7 +240,36 @@ theorem monotonic_in_max_arity
       log_current_height next_input_log_height log_final_height max_log_arity2)
     result2)
   : result1.val ≤ result2.val := by
-  sorry
+  unfold fold_arity.compute_log_arity_for_round at h_result1 h_result2
+  simp [Bind.bind, Std.bind] at h_result1 h_result2
+  have h_le_final : log_final_height.val ≤ log_current_height.val := by omega
+  match h_sub1 : log_current_height - log_final_height with
+  | .ok diff_final =>
+    simp [h_sub1] at h_result1 h_result2
+    cases next_input_log_height with
+    | none =>
+      simp [returns] at h_result1 h_result2
+      -- Both results are min(diff_final, max_log_arity_i)
+      split at h_result1 <;> split at h_result2 <;> {
+        simp at h_result1 h_result2
+        subst h_result1; subst h_result2
+        omega
+      }
+    | some next_log =>
+      simp at h_result1 h_result2
+      match h_sub2 : log_current_height - next_log with
+      | .ok diff_next =>
+        simp [h_sub2, returns] at h_result1 h_result2
+        -- 4 outer splits (diff_next < diff_final) × (diff < max_arity)
+        -- but both h_result1 and h_result2 see the same diff_next/diff_final
+        split at h_result1 <;> split at h_result1 <;>
+          split at h_result2 <;> split at h_result2 <;> {
+          simp at h_result1 h_result2
+          subst h_result1; subst h_result2
+          omega
+        }
+      | .fail e | .div => simp [h_sub2, returns] at h_result1
+  | .fail e | .div => simp [h_sub1, returns] at h_result1
 
 /-! ## Concrete examples -/
 
