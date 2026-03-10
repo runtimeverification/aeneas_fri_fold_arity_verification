@@ -32,11 +32,11 @@ fold_arity_lean/
 | # | Theorem | Status | Property |
 |---|---------|--------|----------|
 | 1 | `bounded_by_max_log_arity` | Proved | result &le; max_log_arity |
-| 2 | `bounded_by_target_distance` | Stated | result &le; current &minus; final (None case) |
-| 3 | `respects_next_input` | Stated | result &le; current &minus; next (Some case) |
-| 4 | `takes_minimum_of_constraints` | Stated | result &le; min(current&minus;next, max_arity) |
-| 5 | `none_equals_some_at_target` | Stated | None &equiv; Some(final_height) boundary |
-| 6 | `monotonic_in_max_arity` | Stated | monotone in max_log_arity |
+| 2 | `bounded_by_target_distance` | Proved | result &le; current &minus; final (None case) |
+| 3 | `respects_next_input` | Proved | result &le; current &minus; next (Some case) |
+| 4 | `takes_minimum_of_constraints` | Proved | result &le; min(current&minus;next, max_arity) |
+| 5 | `none_equals_some_at_target` | Proved | None &equiv; Some(final_height) boundary |
+| 6 | `monotonic_in_max_arity` | Proved | monotone in max_log_arity |
 | &mdash; | 3 concrete examples | Proved | specific input/output checks |
 
 ## Hax vs Aeneas Comparison
